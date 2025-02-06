@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Entities.Models;
 using Telegram.Bot;
-using Telegram.Bot.Polling;
 
 namespace Services;
 

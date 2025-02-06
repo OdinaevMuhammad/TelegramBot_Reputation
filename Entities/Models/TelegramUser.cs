@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 
-
 namespace Entities.Models;
 
 public class TelegramUser
@@ -10,7 +9,7 @@ public class TelegramUser
 
     public string FullName { get; set; }
     public string UserName { get; set; }
-    public int Reputation { get; set; } = 0;
+    public int Reputation { get; set; }
 
     public TelegramUser(long userId, int reputation, string fullName)
     {

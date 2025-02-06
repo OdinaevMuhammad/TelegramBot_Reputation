@@ -1,39 +1,56 @@
-﻿using System.Linq;
-using Entities.Models;
-using Services.Helpers;
-
-namespace Services;
-using System.IO;
-using System.Threading;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Entities.Models;
+using Newtonsoft.Json;
+using Serilog;
+using Services.Helpers;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Polling;
+
+namespace Services;
 
 internal abstract class Program
 {
     private static readonly string Token = Env.GetOrDie("TELEGRAM_BOT_TOKEN");
     private static readonly ITelegramBotClient Bot = new TelegramBotClient(Token);
-    private static readonly string ReputationFilePath = Env.GetOrDie("ReputationFilePath");
+    private static readonly string ReputationFilePath = Env.GetOrDie("REPUTATION_FILE_PATH");
     private static List<TelegramUser> _users = [];
 
     static async Task Main()
     {
+        ConfigureSerilog();
         string currentDir = Directory.GetCurrentDirectory();
         Env.FindAndLoadEnv(currentDir);
 
         LoadReputation();
         using var cts = new CancellationTokenSource();
-        var receiverOptions = new ReceiverOptions { AllowedUpdates = { } };
+        var receiverOptions = new ReceiverOptions();
 
         Bot.StartReceiving(HandleUpdateAsync, HandleErrorAsync, receiverOptions, cts.Token);
 
         Console.WriteLine("Бот запущен. Нажми Ctrl+C для выхода.");
         await Task.Delay(-1); // Бесконечное ожидание
+    }
+
+    private static void ConfigureSerilog()
+    {
+        var logPath = Path.Combine(Directory.GetCurrentDirectory().Replace(@"bin\Debug\net8.0", ""), "logs");
+
+        if (!Directory.Exists(logPath))
+        {
+            Directory.CreateDirectory(logPath);
+        }
+        
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()  // Логирование в консоль
+            .WriteTo.File($"{logPath}/log.txt", rollingInterval: RollingInterval.Day) // Логирование в файл
+            .CreateLogger();
     }
 
     private static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken)
@@ -47,6 +64,8 @@ internal abstract class Program
         var firstName = message.From.FirstName;
         var userName = message.From.Username;
         var target = message.ReplyToMessage?.From;
+        
+        Log.Information("Получено сообщение от {UserId} ({UserName}): {MessageText}", userId, userName, message.Text);
         
         if (message.Text!.StartsWith("/rep"))
         {
@@ -62,7 +81,7 @@ internal abstract class Program
                 return;
             }
         
-            var currentUsers = new List<TelegramUser>() { new(userId, firstName, userName), new(target.Id, target.FirstName, target.Username) };
+            var currentUsers = new List<TelegramUser> { new(userId, firstName, userName), new(target.Id, target.FirstName, target.Username) };
             await CreateTelegramUsers(currentUsers);
             
             var targetUser = _users.FirstOrDefault(x => x.Id == target.Id);
@@ -90,6 +109,9 @@ internal abstract class Program
                 await bot.SendTextMessageAsync(chatId, "Неправильный аргумент команды", cancellationToken: cancellationToken);
                 return;
             }
+            Log.Information("Пользователь {UserId} изменил репутацию {TargetId}: {Reputation}", userId, target.Id, targetUser.Reputation);
+            
+
             string telegramLinkTarget = $"<a href=\"https://t.me/{target.Username}\">{target.FirstName}</a>";
             string telegramLinkCurrentUser = $"<a href=\"https://t.me/{userName}\">{firstName}</a>";
             
@@ -111,7 +133,7 @@ internal abstract class Program
         
         else if (message.Text.StartsWith("/rating"))
         {
-            var list = new List<string>()
+            var list = new List<string>
             {
                 "Легенда",
                 "Мастер",
@@ -188,12 +210,10 @@ internal abstract class Program
         }
         return text;
     }
-
-
-
+    
     private static Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Ошибка: {exception.Message}");
+        Log.Error(exception, "Ошибка в обработке запроса: {Message}", exception.Message);
         return Task.CompletedTask;
     }
 
@@ -219,6 +239,6 @@ internal abstract class Program
     {
         var updatedJson = JsonConvert.SerializeObject(_users, Formatting.Indented);
         File.WriteAllText(ReputationFilePath, updatedJson);
-        Console.WriteLine("Изменения сохранены в файл.");
+        Log.Information("Изменения сохранены в файл репутации.");
     }
 }

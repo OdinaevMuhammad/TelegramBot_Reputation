@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Serilog;
+
 namespace Services.Helpers;
 
 public static class Env
@@ -18,7 +19,7 @@ public static class Env
         return result is not null;
     }
 
-    public static void Load(string filePath)
+    private static void Load(string filePath)
     {
         Log.Debug("[env]: loading .env from: {@filePath}", filePath);
         if (!File.Exists(filePath))
@@ -44,22 +45,23 @@ public static class Env
         }
     }
 
-    public static void Find(string currentDir)
+    private static string Find(string currentDir)
     {
         while (!File.Exists(Path.Combine(currentDir, ".env")))
         {
             currentDir = Directory.GetParent(currentDir)?.FullName;
-            if (currentDir == null)
-            {
-                Log.Error("Ошибка: Файл .env не найден.");
-                return; 
-            }
+            if (currentDir != null) continue;
+            
+            Log.Error("Ошибка: Файл .env не найден.");
+            throw new Exception("Ошибка: Файл .env не найден.");
         }
+
+        return currentDir + @"\.env";
     }
     
     public static void FindAndLoadEnv(string currentDir)
     {
-        Find(currentDir);
-        Load(Path.Combine(currentDir, ".env"));
+        currentDir = Find(currentDir);
+        Load(Path.Combine(currentDir));
     }
 }
