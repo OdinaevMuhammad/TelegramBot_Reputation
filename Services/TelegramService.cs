@@ -65,7 +65,7 @@ internal abstract class Program
         var userName = message.From.Username;
         var target = message.ReplyToMessage?.From;
         
-        Log.Information("Получено сообщение от {UserId} ({UserName}): {MessageText}", userId, userName, message.Text);
+        Log.Information("Получено команда от {UserId} ({UserName}): {MessageText} от группы {@groupId} ({@groupName})", userId, userName, message.Text, message.Chat.Id, message.Chat.Title);
         
         if (message.Text!.StartsWith("/rep"))
         {
@@ -180,22 +180,17 @@ internal abstract class Program
 
     private static Task CreateTelegramUser(long userId, string firstname)
     {
-        if (_users.All(x => x.Id != userId))
-        {
-            TelegramUser targetUser;
-            targetUser = new TelegramUser(userId, 0, firstname);
-            _users.Add(targetUser);
-        }
+        if (_users.Any(x => x.Id == userId)) return Task.CompletedTask;
+        TelegramUser targetUser;
+        targetUser = new TelegramUser(userId, 0, firstname);
+        _users.Add(targetUser);
         return Task.CompletedTask;
     }
     private static Task CreateTelegramUsers(List<TelegramUser> users)
     {
-        foreach (var user in users)
+        foreach (var user in users.Where(user => _users.All(x => x.Id != user.Id)))
         {
-            if (_users.All(x => x.Id != user.Id))
-            {
-                _users.Add(user);
-            } 
+            _users.Add(user);
         }
 
         return Task.CompletedTask;

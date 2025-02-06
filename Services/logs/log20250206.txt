@@ -1,0 +1,38 @@
+2025-02-06 10:21:24.423 +05:00 [WRN] [env]: invalid env: ReputationFilePath
+2025-02-06 10:28:51.940 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rep
+2025-02-06 10:29:06.245 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /myrep
+2025-02-06 10:29:16.153 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rating
+2025-02-06 10:34:12.144 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rep
+2025-02-06 10:36:48.274 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rep@PMconqueror_bot
+2025-02-06 10:38:56.380 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rep@PMconqueror_bot от группы -1002360805931 (null)
+2025-02-06 10:39:30.218 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): /rep@PMconqueror_bot от группы -1002360805931 (E60)
+2025-02-06 10:43:51.091 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): вар от группы -1002360805931 (E60)
+2025-02-06 10:44:16.890 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): цу от группы -1002360805931 (E60)
+2025-02-06 10:46:55.932 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): ва от группы -1002360805931 (E60)
+2025-02-06 10:50:43.444 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): null от группы -1002360805931 (E60)
+2025-02-06 10:50:43.693 +05:00 [ERR] Ошибка в обработке запроса: Object reference not set to an instance of an object.
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Services.Program.HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken) in C:\Users\mukhammad.odinaev\RiderProjects\TelegramBot_Donishgoh\Services\TelegramService.cs:line 70
+   at Telegram.Bot.Polling.DefaultUpdateHandler.HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+   at Telegram.Bot.Polling.DefaultUpdateReceiver.ReceiveAsync(IUpdateHandler updateHandler, CancellationToken cancellationToken)
+2025-02-06 10:51:26.544 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): вав от группы -1002360805931 (E60)
+2025-02-06 10:51:26.550 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): ыва от группы -1002360805931 (E60)
+2025-02-06 10:55:08.564 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): null от группы -1002360805931 (E60)
+2025-02-06 10:55:08.604 +05:00 [ERR] Ошибка в обработке запроса: Object reference not set to an instance of an object.
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Services.Program.HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken) in C:\Users\mukhammad.odinaev\RiderProjects\TelegramBot_Donishgoh\Services\TelegramService.cs:line 70
+   at Telegram.Bot.Polling.DefaultUpdateHandler.HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+   at Telegram.Bot.Polling.DefaultUpdateReceiver.ReceiveAsync(IUpdateHandler updateHandler, CancellationToken cancellationToken)
+2025-02-06 10:58:27.499 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): null от группы -1002360805931 (E60)
+2025-02-06 10:58:27.530 +05:00 [ERR] Ошибка в обработке запроса: Object reference not set to an instance of an object.
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Services.Program.HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken) in C:\Users\mukhammad.odinaev\RiderProjects\TelegramBot_Donishgoh\Services\TelegramService.cs:line 70
+   at Telegram.Bot.Polling.DefaultUpdateHandler.HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+   at Telegram.Bot.Polling.DefaultUpdateReceiver.ReceiveAsync(IUpdateHandler updateHandler, CancellationToken cancellationToken)
+2025-02-06 10:59:08.575 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): null от группы -1002360805931 (E60)
+2025-02-06 10:59:08.605 +05:00 [ERR] Ошибка в обработке запроса: Object reference not set to an instance of an object.
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Services.Program.HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken cancellationToken) in C:\Users\mukhammad.odinaev\RiderProjects\TelegramBot_Donishgoh\Services\TelegramService.cs:line 70
+   at Telegram.Bot.Polling.DefaultUpdateHandler.HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+   at Telegram.Bot.Polling.DefaultUpdateReceiver.ReceiveAsync(IUpdateHandler updateHandler, CancellationToken cancellationToken)
+2025-02-06 10:59:13.759 +05:00 [INF] Получено сообщение от 1700472739 (Muhammmad5): adf от группы -1002360805931 (E60)
