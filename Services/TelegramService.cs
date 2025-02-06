@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Entities.Models;
+using Services.Helpers;
 
 namespace Services;
 using System.IO;
@@ -13,15 +14,18 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Polling;
 
-class Program
+internal abstract class Program
 {
-    private static readonly string Token = "а что ты думал что в сказку попал?";
+    private static readonly string Token = Env.GetOrDie("TELEGRAM_BOT_TOKEN");
     private static readonly ITelegramBotClient Bot = new TelegramBotClient(Token);
-    private static readonly string ReputationFilePath = @"C:\Users\mukhammad.odinaev\RiderProjects\TelegramBot_Donishgoh\Services\Dbjson\reputation.json";
-    private static List<TelegramUser> Users = [];
+    private static readonly string ReputationFilePath = Env.GetOrDie("ReputationFilePath");
+    private static List<TelegramUser> _users = [];
 
     static async Task Main()
     {
+        string currentDir = Directory.GetCurrentDirectory();
+        Env.FindAndLoadEnv(currentDir);
+
         LoadReputation();
         using var cts = new CancellationTokenSource();
         var receiverOptions = new ReceiverOptions { AllowedUpdates = { } };
@@ -61,7 +65,7 @@ class Program
             var currentUsers = new List<TelegramUser>() { new(userId, firstName, userName), new(target.Id, target.FirstName, target.Username) };
             await CreateTelegramUsers(currentUsers);
             
-            var targetUser = Users.FirstOrDefault(x => x.Id == target.Id);
+            var targetUser = _users.FirstOrDefault(x => x.Id == target.Id);
 
             var text = "";
             if (message.Text.Contains("+"))
@@ -98,29 +102,48 @@ class Program
         }
         else if (message.Text.StartsWith("/myrep"))
         {
-            var user = Users.FirstOrDefault(x => x.Id == userId);
+            var user = _users.FirstOrDefault(x => x.Id == userId);
             int reputation = user?.Reputation ?? 0;
 
-            CreateTelegramUser(userId, firstName);
+            await CreateTelegramUser(userId, firstName);
             await bot.SendTextMessageAsync(chatId, $"📊 Ваша репутация: {reputation}", cancellationToken: cancellationToken);
         }
         
         else if (message.Text.StartsWith("/rating"))
         {
-            var userDesc = Users.OrderByDescending(x => x.Reputation).Take(3).ToList();
-    
+            var list = new List<string>()
+            {
+                "Легенда",
+                "Мастер",
+                "Уравнитель"
+            };
+
+            var behruz = "Автолюбитель";
+            var userDesc = _users.OrderByDescending(x => x.Reputation).Take(3).ToList();
+
+
+            if (userDesc.Any(x => x.Id == 8142338825))
+            {
+                var index = userDesc.FindIndex(x => x.Id == 8142338825);
+
+                if (index != 0)
+                {
+                    list[index] = behruz;
+                }
+            }
+
             if (userDesc.Count > 0)
             {
-                string ratingMessage = $"📊1 😌 _Легенда_ *[{userDesc[0].FullName}](https://t.me/{userDesc[0].UserName})* \\- \\{userDesc[0].Reputation} репутации";
+                string ratingMessage = $"📊1 😌 _{list[0]}_ *[{userDesc[0].FullName}](https://t.me/{userDesc[0].UserName})* \\- \\{userDesc[0].Reputation} репутации";
 
                 if (userDesc.Count > 1)
                 {
-                    ratingMessage += $"\n📊2 \ud83d\ude0a _Мастер_ *[{userDesc[1].FullName}](https://t.me/{userDesc[1].UserName})* \\- \\{userDesc[1].Reputation} репутации";
+                    ratingMessage += $"\n📊2 \ud83d\ude0a _{list[1]}_ *[{userDesc[1].FullName}](https://t.me/{userDesc[1].UserName})* \\- \\{userDesc[1].Reputation} репутации";
                 }
 
                 if (userDesc.Count > 2)
                 {
-                    ratingMessage += $"\n📊3 \ud83d\ude03 _Уравнитель_*[{userDesc[2].FullName}](https://t.me/{userDesc[2].UserName})* \\- \\{userDesc[2].Reputation} репутации";
+                    ratingMessage += $"\n📊3 \ud83d\ude03 _{list[2]}_ *[{userDesc[2].FullName}](https://t.me/{userDesc[2].UserName})* \\- \\{userDesc[2].Reputation} репутации";
                 }
 
                 await bot.SendTextMessageAsync(chatId, ratingMessage, parseMode: ParseMode.MarkdownV2, cancellationToken: cancellationToken, linkPreviewOptions: true);
@@ -133,20 +156,23 @@ class Program
         }
     }
 
-    private static TelegramUser CreateTelegramUser(long userId, string firstname)
+    private static Task CreateTelegramUser(long userId, string firstname)
     {
-        TelegramUser targetUser;
-        targetUser = new TelegramUser(userId, 0, firstname);
-        Users.Add(targetUser);
-        return targetUser;
+        if (_users.All(x => x.Id != userId))
+        {
+            TelegramUser targetUser;
+            targetUser = new TelegramUser(userId, 0, firstname);
+            _users.Add(targetUser);
+        }
+        return Task.CompletedTask;
     }
     private static Task CreateTelegramUsers(List<TelegramUser> users)
     {
         foreach (var user in users)
         {
-            if (Users.All(x => x.Id != user.Id))
+            if (_users.All(x => x.Id != user.Id))
             {
-                Users.Add(user);
+                _users.Add(user);
             } 
         }
 
@@ -179,7 +205,7 @@ class Program
             var json = File.ReadAllText(ReputationFilePath);
             if (!string.IsNullOrWhiteSpace(json))
             {
-                Users = JsonConvert.DeserializeObject<List<TelegramUser>>(json) ?? new List<TelegramUser>();
+                _users = JsonConvert.DeserializeObject<List<TelegramUser>>(json) ?? new List<TelegramUser>();
             }
         }
         else
@@ -191,7 +217,7 @@ class Program
     // Метод для сохранения репутации в файл
     private static void SaveReputation()
     {
-        var updatedJson = JsonConvert.SerializeObject(Users, Formatting.Indented);
+        var updatedJson = JsonConvert.SerializeObject(_users, Formatting.Indented);
         File.WriteAllText(ReputationFilePath, updatedJson);
         Console.WriteLine("Изменения сохранены в файл.");
     }
